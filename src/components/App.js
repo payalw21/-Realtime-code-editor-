@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Editor from './Editor.js'
 import useLocalStorage from '../hooks/useLocalStorage.js'
+import Header from "./Header.js";
 
 
 function App() {
@@ -8,6 +9,7 @@ function App() {
   const[css, setCss] = useLocalStorage('css','')
   const[js, setJs] = useLocalStorage('js','')
   const[srcDoc, setSrcDoc] = useState('')
+  const[title, setTitle] = useLocalStorage('title', 'Enter your Title');
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -23,9 +25,30 @@ function App() {
   return () => clearTimeout(timeout)
   }, [html, css, js])
 
+  const handler = (e) => {
+    setTitle(e.target.value);
+    console.log(title);
+
+  }
+
+  const downloadCode = () => {
+    const extension = "html";
+    const text = srcDoc;
+    const fileName = title;
+    const data = `data:text/${extension};charSet=utf-8,${encodeURIComponent(text)}`;
+    const link = document.createElement("a");
+    link.href = data;
+    link.download = `${fileName}.${extension}`;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
 
   return (
     <>
+      <Header title={title} handler={handler} download={downloadCode}/>
       <div className="pane top-pane">
         <Editor 
          language="xml"
@@ -51,7 +74,7 @@ function App() {
           srcDoc={srcDoc}
           title="output"
           sandbox="allow-scripts" 
-          frameborder="0"
+          frameBorder="0"
           width="100%"
           height="100%"
         />
